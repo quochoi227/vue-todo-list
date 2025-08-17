@@ -1,29 +1,39 @@
 <script setup>
-import { ref, useTemplateRef } from 'vue'
+import { computed, ref, watchEffect } from 'vue'
+import { v4 as uuidv4 } from 'uuid'
 // import Select from './Priority/Select.vue'
 import Select from '../Select/Select.vue'
 import Tag from '../Tag/Tag.vue'
 import Filters from './Filters/Filters.vue'
 
-const inputRef = useTemplateRef('input-ref')
-const todos = ref([])
-const priority = ref({ type: 'high', text: 'High' })
-const todoName = ref('')
+// Filters
+const searchValue = ref('')
+const status = ref('todo')
+const priority = ref(null)
 
-// const handleChangePriority = (newPriority) => {
-//   priority.value = newPriority
-// }
+// Handle
+const inputRef = ref(null)
+const todoName = ref('')
+const todos = ref([])
+
+const filteredTodos = computed(() => {
+  const priorityCondition = (todo) => {
+    if (!priority.value) return true
+    return todo.type === priority.value.code
+  }
+  if (searchValue.value === '') {
+    return todos.value.filter((todo) => {
+      return priorityCondition(todo)
+    })
+  } else {
+    return todos.value.filter((todo) => {
+      return todo.name.toLowerCase().includes(searchValue.value.toLowerCase()) && priorityCondition(todo)
+    })
+  }
+})
 
 //---------------------
-const selectedTag = ref(null)
-
-const cities = ref([
-  { name: 'New York', code: 'NY' },
-  { name: 'Rome', code: 'RM' },
-  { name: 'London', code: 'LDN' },
-  { name: 'Istanbul', code: 'IST' },
-  { name: 'Paris', code: 'PRS' }
-])
+const selectedTag = ref({ name: 'High', code: 'high' })
 
 const tags = ref([
   { name: 'High', code: 'high' },
@@ -35,7 +45,7 @@ const tags = ref([
 const handleAddTodo = () => {
   if (todoName.value === '' || !selectedTag.value) return
   todos.value.push({
-    id: Math.random(),
+    id: uuidv4(),
     name: todoName.value,
     text: selectedTag.value.name,
     type: selectedTag.value.code,
@@ -50,6 +60,29 @@ const handleUpdate = (id) => {
   todos.value.splice(targetIndex, 1)
 }
 
+const handleKeyDown = (event) => {
+  // if (event.key >= '1' && event.key <= tags.value.length.toString()) {
+  //   selectedTag.value = tags.value[event.key-1]
+  // }
+  if (event.key === 'ArrowUp') {
+    let currentIndex = tags.value.findIndex((tag) => tag.code === selectedTag.value.code)
+    if (currentIndex === 0) {
+      currentIndex = tags.value.length - 1
+    } else {
+      currentIndex--
+    }
+    selectedTag.value = tags.value[currentIndex]
+  } else if (event.key === 'ArrowDown') {
+    let currentIndex = tags.value.findIndex((tag) => tag.code === selectedTag.value.code)
+    if (currentIndex === tags.value.length - 1) {
+      currentIndex = 0
+    } else {
+      currentIndex++
+    }
+    selectedTag.value = tags.value[currentIndex]
+  }
+}
+
 </script>
 
 <template>
@@ -59,19 +92,9 @@ const handleUpdate = (id) => {
       Todo List App
     </h1>
     <div class="body">
-      <!-- <Select v-model="selectedTag" :options="tags">
-        <template #option="{ option }">
-          <div class="custom-item">
-            <i class="pi pi-flag"></i>
-            <strong>{{ option.code }}</strong> - {{ option.name }}
-          </div>
-          <Tag v-if="option" :type="option.code">{{ option.name }}</Tag>
-          <div v-else>Select</div>
-        </template>
-      </Select> -->
-      <Filters />
+      <Filters v-model:searchValue="searchValue" v-model:status="status" v-model:priority="priority" />
       <transition-group name="fade" tag="ul">
-        <li v-for="todo in todos" :key="todo.id" :style="{ textDecoration: todo.completed ? 'line-through' : '' }">
+        <li v-for="todo in filteredTodos" :key="todo.id">
           <input style="cursor: pointer;" type="checkbox" @change="handleUpdate(todo.id)" />
           <input class="todo-name" v-model="todo.name" />
           <Tag :type="todo.type">{{ todo.text }}</Tag>
@@ -79,24 +102,7 @@ const handleUpdate = (id) => {
       </transition-group>
     </div>
     <div class="footer">
-      <input ref="input-ref" v-model="todoName" type="text" placeholder="Enter new todo...">
-      <!-- <Select v-model="priority">
-        <template #selected="{ selected }">
-          <Tag :type="selected.type">{{ selected.text }}</Tag>
-        </template>
-
-        <template #options="{ select }">
-          <div @click.stop="select({ type: 'high', text: 'High' })">
-            <Tag type="high">High</Tag>
-          </div>
-          <div @click.stop="select({ type: 'medium', text: 'Medium' })">
-            <Tag type="medium">Medium</Tag>
-          </div>
-          <div @click.stop="select({ type: 'low', text: 'Low' })">
-            <Tag type="low">Low</Tag>
-          </div>
-        </template>
-      </Select> -->
+      <input @keydown.enter="handleAddTodo" @keydown="handleKeyDown" ref="inputRef" v-model="todoName" type="text" placeholder="Enter new todo...">
       <Select v-model="selectedTag" :options="tags" position="top" disable-arrow="true">
         <template #option="{ option }">
           <div class="custom-item">

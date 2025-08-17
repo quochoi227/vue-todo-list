@@ -1,18 +1,38 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Select from '@/components/Select/Select.vue'
 import Tag from '@/components/Tag/Tag.vue'
 
-const searchValue = ref('')
-const status = ref('Two')
-const priority = ref(null)
+const props = defineProps(['searchValue', 'status', 'priority'])
+const emit = defineEmits(['update:searchValue', 'update:status', 'update:priority'])
+
+const searchValue = ref(props.searchValue)
+const status = ref(props.status)
+const priority = ref(props.priority)
+
+const bindings = [
+  { key: 'searchValue', prop: () => props.searchValue, ref: searchValue },
+  { key: 'status', prop: () => props.status, ref: status },
+  { key: 'priority', prop: () => props.priority, ref: priority }
+]
+
+bindings.forEach(({ key, prop, ref }) => {
+  watch(prop, (val) => {
+    if (val !== ref.value) {
+      console.log('prop updated')
+      ref.value = val
+    }
+  })
+  watch(ref, (val) => {
+    emit(`update:${key}`, val)
+  })
+})
 
 const tags = ref([
   { name: 'High', code: 'high' },
   { name: 'Medium', code: 'medium' },
   { name: 'Low', code: 'low' }
 ])
-
 </script>
 
 <template>
@@ -21,18 +41,18 @@ const tags = ref([
       <label for="search">Search</label>
       <input v-model="searchValue" id="search" placeholder="Enter search value" />
     </div>
-    <div class="filters-status">
+    <!-- <div class="filters-status">
       <label>Status</label>
       <div>
-        <input type="radio" id="todo" value="Todo" v-model="status" />
+        <input type="radio" id="todo" value="todo" v-model="status" />
         <label for="todo">Todo</label>
-        <input type="radio" id="completed" value="Completed" v-model="status" />
+        <input type="radio" id="completed" value="tompleted" v-model="status" />
         <label for="completed">Completed</label>
       </div>
-    </div>
+    </div> -->
     <div class="filters-priority">
       <label>Priority</label>
-      <Select v-model="priority" :options="tags" position="bottom">
+      <Select v-model="priority" :options="tags" position="bottom" approve-reset="true">
         <template #option="{ option }">
           <div class="custom-item">
             <Tag v-if="option" :type="option.code">{{ option.name }}</Tag>

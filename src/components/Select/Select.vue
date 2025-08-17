@@ -1,9 +1,8 @@
 <script setup>
-import { computed, onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
 
-const props = defineProps(['modelValue', 'options', 'position', 'disableArrow'])
+const props = defineProps(['modelValue', 'options', 'position', 'disableArrow', 'approveReset'])
 const emit = defineEmits(['update:modelValue'])
-
 const isOpen = ref(false)
 const selectedOption = ref(props.modelValue)
 
@@ -26,8 +25,12 @@ const useClickOutSide = (refEl, callback) => {
     }
   }
 
-  onMounted(() => document.addEventListener('click', handler))
-  onUnmounted(() => document.removeEventListener('click', handler))
+  onMounted(() => {
+    document.addEventListener('click', handler)
+  })
+  onUnmounted(() => {
+    document.removeEventListener('click', handler)
+  })
 }
 
 useClickOutSide(selectRef, () => {
@@ -51,6 +54,7 @@ const handleSelect = (option) => {
     <transition name="fade">
       <div v-show="isOpen" class="select-options" :class="{ [position]: position }">
         <ul>
+          <li v-if="approveReset" @click="handleSelect(null)" class="select-option" style="text-align: center;">No priority filter</li>
           <li @click="handleSelect(item)" class="select-option" :class="{ 'selected': item.name === selectedOption?.name }" v-for="item in options" :key="item.code">
             <slot name="option" :option="item">
               {{ item.name }}
