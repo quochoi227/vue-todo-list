@@ -1,5 +1,6 @@
 <script setup>
-import { computed, ref, watchEffect } from 'vue'
+import { computed, ref } from 'vue'
+import { useClickOutsideGlobal } from '@/composables/useClickOutsideGlobal'
 import { v4 as uuidv4 } from 'uuid'
 // import Select from './Priority/Select.vue'
 import Select from '../Select/Select.vue'
@@ -144,6 +145,9 @@ const handleKeyDown = (event) => {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      max-height: 330px;
+      overflow-x: hidden;
+      overflow-y: auto;
     }
 
     li {

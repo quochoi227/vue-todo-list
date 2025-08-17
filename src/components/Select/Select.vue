@@ -1,5 +1,6 @@
 <script setup>
-import { onMounted, onUnmounted, ref, useTemplateRef, watch } from 'vue'
+import { ref, useTemplateRef, watch, onMounted, onUnmounted } from 'vue'
+import { useClickOutsideGlobal } from '@/composables/useClickOutsideGlobal'
 
 const props = defineProps(['modelValue', 'options', 'position', 'disableArrow', 'approveReset'])
 const emit = defineEmits(['update:modelValue'])
@@ -18,22 +19,26 @@ const toggleOpen = () => {
   isOpen.value = !isOpen.value
 }
 
-const useClickOutSide = (refEl, callback) => {
-  const handler = (event) => {
-    if (refEl.value && !refEl.value.contains(event.target)) {
-      callback()
-    }
-  }
+// const useClickOutSide = (refEl, callback) => {
+//   const handler = (event) => {
+//     if (refEl.value && !refEl.value.contains(event.target)) {
+//       callback()
+//     }
+//   }
 
-  onMounted(() => {
-    document.addEventListener('click', handler)
-  })
-  onUnmounted(() => {
-    document.removeEventListener('click', handler)
-  })
-}
+//   onMounted(() => {
+//     document.addEventListener('click', handler)
+//   })
+//   onUnmounted(() => {
+//     document.removeEventListener('click', handler)
+//   })
+// }
 
-useClickOutSide(selectRef, () => {
+// useClickOutSide(selectRef, () => {
+//   isOpen.value = false
+// })
+
+useClickOutsideGlobal(selectRef, () => {
   isOpen.value = false
 })
 
@@ -85,6 +90,7 @@ const handleSelect = (option) => {
 .select-options {
   position: absolute;
   min-width: 100%;
+  background-color: #fff;
   box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
   padding: 4px;
   border-radius: 6px;
