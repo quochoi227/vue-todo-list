@@ -1,11 +1,10 @@
 <script setup>
 defineProps(['type', 'small'])
 
-
 </script>
 
 <template>
-  <div @click="$emit('clicked')" :class="['tag', type, { small }]">
+  <div @click="$emit('click')" :class="['tag', type, { small }]">
     <slot />
   </div>
 </template>
@@ -38,5 +37,6 @@ defineProps(['type', 'small'])
 
   .tag.low {
     background-color: #e5e5e5;
+    color: #828282;
   }
 </style>

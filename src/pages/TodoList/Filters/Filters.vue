@@ -53,10 +53,11 @@ const tags = ref([
     <div class="filters-priority">
       <label>Priority</label>
       <Select v-model="priority" :options="tags" position="bottom" approve-reset="true">
-        <template #option="{ option }">
+        <template #option="{ option, selected }">
           <div class="custom-item">
-            <Tag v-if="option" :type="option.code">{{ option.name }}</Tag>
-            <div v-else>Select</div>
+            <Tag v-if="option" :type="option.code" :small="selected ? true : false">{{ option.name }}</Tag>
+            <!-- <span v-if="option">{{ option.name }}</span> -->
+            <span v-else>Select</span>
           </div>
         </template>
       </Select>
@@ -78,6 +79,7 @@ const tags = ref([
     input {
       padding: 4px 6px;
       font-size: 1.1rem;
+      border: 1px solid #213547;
     }
   }
 

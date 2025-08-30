@@ -1,0 +1,17 @@
+:root {
+  --bg-color: #f5f5f5;
+  --text-color: #213547;
+  --app-bg-color: #fff;
+  --component-bg-color: #fff;
+  --input-place-holder-color: #999;
+  --btn-bg-color: #fff;
+}
+
+[data-theme="dark"] {
+  --bg-color: #1B1B1F;
+  --text-color: #ffffff;
+  --app-bg-color: #161618;
+  --component-bg-color: #161618;
+  --input-place-holder-color: #c8c8c8;
+  --btn-bg-color: #76848e;
+}

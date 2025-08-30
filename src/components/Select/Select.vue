@@ -1,5 +1,5 @@
 <script setup>
-import { ref, useTemplateRef, watch, onMounted, onUnmounted } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { useClickOutsideGlobal } from '@/composables/useClickOutsideGlobal'
 
 const props = defineProps(['modelValue', 'options', 'position', 'disableArrow', 'approveReset'])
@@ -49,10 +49,10 @@ const handleSelect = (option) => {
 </script>
 
 <template>
-  <div ref="select-ref" class="select-wrapper" @click="toggleOpen">
+  <div ref="select-ref" class="wrapper" @click="toggleOpen">
     <div class="option-selected">
-      <slot name="option" :option="selectedOption">
-        {{ selectedOption?.name || 'Select' }}
+      <slot name="option" :option="selectedOption" :selected="true">
+        {{ selectedOption?.name || 'Select please' }}
       </slot>
       <i v-if="!disableArrow" class="pi pi-angle-down"></i>
     </div>
@@ -61,7 +61,7 @@ const handleSelect = (option) => {
         <ul>
           <li v-if="approveReset" @click="handleSelect(null)" class="select-option" style="text-align: center;">No priority filter</li>
           <li @click="handleSelect(item)" class="select-option" :class="{ 'selected': item.name === selectedOption?.name }" v-for="item in options" :key="item.code">
-            <slot name="option" :option="item">
+            <slot name="option" :option="item" :selected="false">
               {{ item.name }}
             </slot>
           </li>
@@ -72,26 +72,27 @@ const handleSelect = (option) => {
 </template>
 
 <style scoped>
-.select-wrapper {
+.wrapper {
   border: 1px solid #213547;
   border-radius: 6px;
   cursor: pointer;
   position: relative;
   user-select: none;
+  background-color: var(--component-bg-color);
 }
 
 .option-selected {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
+  padding: 6px;
 }
 
 .select-options {
   position: absolute;
   min-width: 100%;
-  background-color: #fff;
-  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  background-color: var(--component-bg-color);
+  box-shadow: 0 4px 24px 0px rgba(0, 0, 0, 0.2);
   padding: 4px;
   border-radius: 6px;
   left: 50%;
